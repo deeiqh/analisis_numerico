@@ -15,17 +15,20 @@ double alpha( double(*funcion)(double), double, double);
 
 int main()
 {
-    double exactitud = 0.00003;
+    double exactitud = 0.003;
     double diferencia = 1;
     double alpha1, alpha2;
     int n = 2; //TENDERÁ AL INFINITO
     while( diferencia > exactitud ){
-            alpha1 = alpha(fclase2, 0, n); //alpha(FUNCION, LIMITE, n) 
-            alpha2 = alpha(fclase2, 0, n+1);
+            alpha1 = alpha(fd,0, n); //alpha(FUNCION, LIMITE, n) 
+            alpha2 = alpha(fd, 0, n+1);
             diferencia = abs(alpha1 -  alpha2);
             n++;
     }
+    cout << "Para la función  \"d\" [1.0/(n*n*n)], se tiene: \n";
     cout <<  "alpha = " << alpha1 << ", n creció hasta " << n << " para tener una exactitud de "<<exactitud<<'\n';
+    
+    return 0;
 }
 
 double alpha( double(*funcion)(double), double limite , double n)
@@ -43,7 +46,7 @@ double fclase1(double n)
 
 double fclase2(double n)
 {
-    return 1/pow(2.0,pow(2.0,n)); // limite 0
+    return 1.0/pow(2.0,pow(2.0,n)); // limite 0
 }
 
 
@@ -54,16 +57,22 @@ double fa(double n)
 
 double fb(double n)
 {
-    return n;
+    return 2.0/(pow(3.0, pow(3.0,n))+(n*n)); // limite 0
 }
 
 double fc(double n)
 {
-    return n;
+    double r = 0;
+    double fact = 1;
+    for(int i=0; i <= n; i++){
+        r += 1.0/(fact);
+        fact = fact*(i+1);  //limite e=2.71828
+    }
+    return r;
 }
 
 double fd(double n)
 {
-    return n;
+    return 1.0/(n*n*n); // limite 0
 }
 

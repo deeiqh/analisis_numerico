@@ -18,7 +18,7 @@ int main()
       double p0 = 0.5;  //ejemplo del libro
       double p1 = pi/4.0; //ejemplo del libro
       
-      double tolerancia = 0.000001;
+      double tolerancia = 0.00000000001;
       int iteraciones_max = 300; 
 
       int i = 2;      

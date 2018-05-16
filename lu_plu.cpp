@@ -11,7 +11,6 @@ double *resuelve_sist_con_lu(double A[f][c], double b[f]);
 pair_mmm descomp_plu(double A[f][c]);
 double *resuelve_sist_con_plu(double A[f][c], double b[f]);
 
-
 int main()
 {
     /*
@@ -27,21 +26,27 @@ int main()
 	double b[f] = {1,2,3,4};
 	*/
 	
-	double A[f][c]= {{2,3,4,-5},{-3,4,-5,7},{5,1,-1,6},{7,9,-13,17}};
+	double A[f][c]= {
+				{2,3,4,-5},
+				{-3,4,-5,7},
+				{5,1,-1,6},
+				{7,9,-13,17}};
+				
 	double b[f] = {7,2,5,21};
 		
-	double *x = resuelve_sist_con_lu(A,b);
-	
-    double r[f];
-    for(int i=0; i <=f-1; i++){
-        r[i] = 0;
-        for(int j=0; j<= c-1; j++){
-            r[i] += A[i][j]*x[j];
-        }
-    }
+	double *x = resuelve_sist_con_plu(A,b);
     
+    	//----- Solo para verificar
+	double r[f];
+	for(int i=0; i <=f-1; i++){
+		r[i] = 0;
+		for(int j=0; j<= f-1; j++){
+			r[i] += A[i][j]*x[j];
+	 	}
+	}
 	for(int i=0;i<=f-1;i++)
-        cout << r[i] << '\n';
+		cout << "b["<<i+1<<"] = "<<r[i] << '\n';
+	//----- 
 
     return 0;
 }
@@ -57,6 +62,7 @@ pair_mm descomp_lu(double A[f][c])
                 l_u.first[i][j] = 0;
          };
     }
+    
     for(int j=0; j <= c-2; j++){
 		for(int i=j+1; i <= f-1; i++){
 			l_u.first[i][j] = A[i][j]/A[j][j];
@@ -78,24 +84,42 @@ pair_mm descomp_lu(double A[f][c])
 
 double *sust_progresiva(double A[f][c], double b[f])
 {
-    double *x = new double[f];
-    double s;
-    for(int i=0; i <=f-1; i++){
-        s = 0;
-        for(int k = 0; k <= i-1; k++){
-            s += A[i][k]*x[k];
-        }
-        x[i] = (b[i]-s)/A[i][i];
-    } 
-    return x;
+    double *X = new double[f];
+    for(int i=0; i != f; i++){
+	   X[i] = 0;
+    }
+	for(int i = 0; i != f; i++){
+		X[i] = b[i];
+		for(int j = i-1; j != -1; j--){
+			X[i] = X[i]-A[i][j]*X[j];
+		}
+		X[i] = X[i]/A[i][i];
+	}
+    return X;
+}
+
+double *sust_regresiva(double A[f][c], double b[f])
+{
+	double *X = new double[f];
+	for(int i=0; i != f; i++){
+		X[i] = 0;
+	}
+	for(int i = f-1; i != -1; i--){
+		X[i] = b[i];
+		for(int j = i+1; j != f; j++){
+			X[i] = X[i]-A[i][j]*X[j];
+		}
+		X[i] = X[i]/A[i][i];
+	}
+	return X;
 }
 
 double *resuelve_sist_con_lu(double A[f][c], double b[f])
 {
     pair_mm l_u = descomp_lu(A);
-    double *y = sust_progresiva(l_u.first,b);
+    double *y = sust_progresiva(l_u.first,b);		
     double *x = new double[f];
-    x = sust_progresiva(l_u.second, y);
+    x = sust_regresiva(l_u.second, y);
     return x;
 }
 
@@ -178,9 +202,10 @@ double *resuelve_sist_con_plu(double A[f][c], double b[f])
     }
     double *y = sust_progresiva(p_l_u.second.first,pb);
     double *x = new double[f];
-    x = sust_progresiva(p_l_u.second.second, y);
+    x = sust_regresiva(p_l_u.second.second, y);
     return x;
 }
+
 
 
 

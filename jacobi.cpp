@@ -2,9 +2,6 @@
 #include<cmath>
 #include<iostream>
 
-#define true 1
-#define false 0
-
 using namespace std;
 
 int main()
@@ -25,7 +22,7 @@ int main()
 		X0[i-1] = 0; 
 
 	int K = 1;
-	int validado = false;
+	bool validado = false;
 	
 	//Calculamos los X^K
 	while ((!validado) && (K <= iteraciones_max)) {
@@ -69,6 +66,5 @@ int main()
 
 	return 0;
 }
-
 
 

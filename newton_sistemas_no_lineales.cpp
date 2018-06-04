@@ -90,8 +90,8 @@ int main()
     
     //Newton_sistema
     //-------------------------------     
-    double tol = 0.001;
-    vd resultado = newton_sistema(F,JF,X0,n,tol);
+    double tolerancia = 0.001;
+    vd resultado = newton_sistema(F,JF,X0,n,tolerancia);
     
     for(int i=0;i<=n-1;i++)
 		cout << "X["<<i+1<<"] = "<<resultado[i] << '\n';
@@ -147,10 +147,29 @@ vd evalua(vector<map<string,pdd>> F_, vd X0, int n)
 	
 }
 
+map<string,pdd> derivada(map<string,pdd> mapa_fi,string letra);
 vector<vector<map<string,pdd>>> jacobiano(vector<map<string,pdd>> F_, int n)
 {
-    
+    vector<string> letras = {"x","y","z","v","w"};
+    vector<vector<map<string,pdd>>> matriz_jacobiana;
+    for(int i=0; i<=n-1; i++){
+        vector<map<string,pdd>> fila;
+        for(int j=0; j<=n-1; j++){
+            fila.push_back(derivada(F_[i],letras[j++]));
+        }
+        matriz_jacobiana.push_back(fila);
+    }
+    return matriz_jacobiana;
 }
+map<string,pdd> derivada(map<string,pdd> mapa_fi,string letra)
+{
+    map<string,pdd> mapa_r;
+    pdd termino;
+    termino.first = mapa_fi[letra].second * mapa_fi[letra].first;
+    termino.second = mapa_fi[letra].second-1;
+    mapa_r[letra] = termino;
+}
+
 
 vdd evalua(vector<vector<map<string,pdd>>> JF_, vd X0, int n)
 {

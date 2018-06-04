@@ -90,13 +90,13 @@ int main()
     
     //Newton_sistema
     //-------------------------------     
-    double tolerancia = 0.000001;
+    double tolerancia = 0.1;
     vd resultado = newton_sistema(F,JF,X0,n,tolerancia);
-    
+    return 0;
     for(int i=0;i<=n-1;i++)
 		cout << "X["<<i+1<<"] = "<<resultado[i] << '\n';
 	
-	//Para verificar resultado
+	//Para verificar el resultado
     //-------------------------------
 	
 	
@@ -106,7 +106,7 @@ int main()
 vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
 {
     double A[3][3];//Se pone 3 y no n por no usar header
-    int f=0,c;
+    int c;
     double b[3];//Se pone 3 y no n por no usar header
     double *V_;
     double *ptr;
@@ -115,6 +115,7 @@ vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
     do{
         //Por no usar header
         //----
+        int f=0;
         for(auto it=JF.begin(); it!=JF.end(); it++){
             c = 0;
             for(auto it_2=it->begin(); it_2!=it->end(); it_2++){
@@ -137,10 +138,13 @@ vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
 	    suma_tolerancia=0;
 	    for(int i=0; i<=n-1; i++){
 	    	x0_ = X0[i];
+	    	cerr << "x0_="<<x0_<<"\n";
             X0[i] = X0[i]-V[i];
-            suma_tolerancia += abs(X0[i]-x0_);
+            cerr << "X0["<<i<<"]="<<X0[i]<<"\n";
+            suma_tolerancia += abs(X0[i]-x0_);            
         }
-    }while(suma_tolerancia <= tolerancia);
+        cerr << "suma_tolerancia: " <<suma_tolerancia << "\n\n\n";
+    }while(suma_tolerancia > tolerancia);
 	return X0;
 }
 

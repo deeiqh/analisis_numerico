@@ -90,11 +90,15 @@ int main()
     
     //Newton_sistema
     //-------------------------------     
-    double tolerancia = 0.001;
+    double tolerancia = 0.000001;
     vd resultado = newton_sistema(F,JF,X0,n,tolerancia);
     
     for(int i=0;i<=n-1;i++)
 		cout << "X["<<i+1<<"] = "<<resultado[i] << '\n';
+	
+	//Para verificar resultado
+    //-------------------------------
+	
 	
 	return 0;
 }
@@ -107,8 +111,7 @@ vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
     double *V_;
     double *ptr;
     vd V;
-    vd Xn;
-    double suma_tolerancia;
+    double suma_tolerancia, x0_;
     do{
         //Por no usar header
         //----
@@ -131,15 +134,14 @@ vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
             V.push_back(*(ptr++));
         }    	
 	    //Xn = X-V;
-	    c=0;
 	    suma_tolerancia=0;
 	    for(int i=0; i<=n-1; i++){
-            Xn[c] = X0[c]-V[c];
-            suma_tolerancia += abs(Xn[c]-X0[c]);
-            c++;
+	    	x0_ = X0[i];
+            X0[i] = X0[i]-V[i];
+            suma_tolerancia += abs(X0[i]-x0_);
         }
     }while(suma_tolerancia <= tolerancia);
-	
+	return X0;
 }
 
 vd evalua(vector<map<string,pdd>> F_, vd X0, int n)
@@ -149,12 +151,15 @@ vd evalua(vector<map<string,pdd>> F_, vd X0, int n)
 	int c;
 	for(int i=0; i<=n-1; i++){
 	    c = 0;
-	    for(auto it=F_[i].begin(); it!=F_[i].end(); it++){
+	    auto it=F_[i].begin();
+	    for(; it!=F_[i].end() && c<=n-1; it++){	    	
 	        suma += it->second.first * pow(X0[c++],it->second.second);
 	    }
+	    suma += it->second.first;//la constante!
 	    r.push_back(suma);
 	    suma=0;
 	}
+	return r;
 }
 
 map<string,pdd> derivada(map<string,pdd> mapa_fi,string letra);
@@ -165,7 +170,7 @@ vector<vector<map<string,pdd>>> jacobiano(vector<map<string,pdd>> F_, int n)
     for(int i=0; i<=n-1; i++){
         vector<map<string,pdd>> fila;
         for(int j=0; j<=n-1; j++){
-            fila.push_back(derivada(F_[i],letras[j++]));
+            fila.push_back(derivada(F_[i],letras[j]));
         }
         matriz_jacobiana.push_back(fila);
     }
@@ -178,6 +183,7 @@ map<string,pdd> derivada(map<string,pdd> mapa_fi,string letra)
     termino.first = mapa_fi[letra].second * mapa_fi[letra].first;
     termino.second = mapa_fi[letra].second-1;
     mapa_r[letra] = termino;
+    return mapa_r;
 }
 
 
@@ -357,7 +363,6 @@ double *met_gauss_piv(double A[filas][columnas], double b[filas])
 }
 
 //-----------------------------------------
-
 
 
 

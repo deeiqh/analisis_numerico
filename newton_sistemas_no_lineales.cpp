@@ -1,18 +1,36 @@
 #include <iostream>
-#include "sistema_ecuaciones.cpp"
+//#include "sistema_ecuaciones.cpp"
 #include <map>
 #include <utility>
 #include <string>
 #include <vector>
+#include <cmath>
 
 
 using namespace std;
 using pdd = pair<double, double>;
+using vd = vector<double>;
+using vdd = vector< vector<double> >;
 
+vd newton_sistema (vd F, vdd JF, vd X0, int n, double tolerancia);
+
+vd evalua(vector<map<string,pdd>> F_, vd X0, int n);
+
+vector<vector<map<string,pdd>>> jacobiano(vector<map<string,pdd>> F_, int n);
+
+vdd evalua(vector<vector<map<string,pdd>>> JF_, vd X0, int n);
+
+//POR NO HACER HEADERS:::::::::::::::::::::
+//-----------------------------------------
 const int n = 3;
-
-double *newton_sistema(double F[n], double JF[n][n], double X[n], double tolerancia);
-vector<double> evalua(vector< map<string, pdd> > F_[n], double X0[n]);
+const int filas = n;
+const int columnas = n;
+double **escalona(double AE[filas][columnas+1]);
+double *sust_regresiva(double A[filas][columnas], double [filas]);
+double *met_gauss(double A[filas][columnas], double b[filas]);
+double **escalona_piv(double AE[filas][columnas+1]);
+double *met_gauss_piv(double A[filas][columnas], double b[filas]);
+//-----------------------------------------
 
 int main()
 {
@@ -20,21 +38,20 @@ int main()
 	f[0] = map[x] map[y] map[z] -> map_evalua(map, x,y,z)
 	f[1] = map[x] map[y] map[z]
 	f[n-1] = map[x] map[y] map[z]
-	*/
-	
+	*/	
 	/*
 	x²+y²+z²=2
 	x+y+z = 1
 	x²+y²-z=0
-	*/
-	
+	*/	
 	/*
 	cos(x-y) + e^(cosx-y) = 1
 	arctan(xy) + ln(x²+y³) = 2
 	*/
-	
-	//.......................
-	//.......................
+
+    //F   
+    //------------------------------- 
+    
 	vector< map<string, pdd> > F_;
 	
 	map<string, pdd> f1;
@@ -42,62 +59,275 @@ int main()
 	f1["y"] = pdd(1,2);
 	f1["z"] = pdd(1,2);
 	f1["c"] = pdd(-2,1);
-	F_.push_back(f1);
+	
+	F_.push_back(f1);	
 	
 	map<string, pdd> f2;
 	f2["x"] = pdd(1,1);
 	f2["y"] = pdd(1,1);
 	f2["z"] = pdd(1,1);
 	f2["c"] = pdd(-1,1);
-	F_.push_back(f2);
+	
+	F_.push_back(f2);	
 	
 	map<string, pdd> f3;
 	f3["x"] = pdd(1,2);
 	f3["y"] = pdd(1,2);
 	f3["z"] = pdd(-1,1);
 	f3["c"] = pdd(0,1);
+	
 	F_.push_back(f3);
 	
-	double X0[n] = {1,0,0};
-	vector<double> F = evalua(F_, X0);
-	//.......................
-	//.......................
-	vector< map<string, pdd> > F2_;
-	/*
-	map<string, pdd> f1_2;
-	f1_2["x"] = pair<1,2>;
-	f1_2["y"] = pair<1,2>;
-	f1_2["z"] = pair<1,2>;
-	f1_2["c"] = pair<-2,1>;
-	F2_[0] = f1_2;
-	
-	map<string, pdd> f2_2;
-	f2_2["x"] = pair<1,1>;
-	f2_2["y"] = pair<1,1>;
-	f2_2["z"] = pair<1,1>;
-	f2_2["c"] = pair<-1,1>;
-	F2_[1] = f2_2;
-	
-	map<string, pdd> f3_2;
-	f3_2["x"] = pair<1,2>;
-	f3_2["y"] = pair<1,2>;
-	f3_2["z"] = pair<-1,1>;
-	f3_2["c"] = pair<0,1>;
-	F2_[2] = f3_2;*/
-	
+	vd X0 = {1,0,0};
+	vd F = evalua(F_, X0, n);
+
+    //JF
+    //------------------------------- 
+    
+    vector< vector< map<string, pdd> > >JF_;
+    JF_ = jacobiano(F_, n);
+    vdd JF = evalua(JF_, X0, n);
+    
+    //Newton_sistema
+    //-------------------------------     
+    double tol = 0.001;
+    vd resultado = newton_sistema(F,JF,X0,n,tol);
+    
+    for(int i=0;i<=n-1;i++)
+		cout << "X["<<i+1<<"] = "<<resultado[i] << '\n';
 	
 	return 0;
 }
 
-double *newton_sistema(double F[n], double JF[n][n], double X[n], double tolerancia)
+vd newton_sistema (vd F, vdd JF, vd X0, int n, double tolerancia)
+{
+    double A[3][3];//Se pone 3 y no n por no usar header
+    int f=0,c;
+    double b[3];//Se pone 3 y no n por no usar header
+    double *V_;
+    double *ptr;
+    vd V;
+    vd Xn;
+    double suma_tolerancia;
+    do{
+        //Por no usar header
+        //----
+        for(auto it=JF.begin(); it!=JF.end(); it++){
+            c = 0;
+            for(auto it_2=it->begin(); it_2!=it->end(); it_2++){
+                A[f][c++] = *it_2;
+            }
+            f++;
+        }    
+        c=0;
+        for(auto it=F.begin(); it!=F.end(); it++){
+            b[c++]=*it;
+        }    
+        //----
+	    //V
+	    V_ = met_gauss_piv(A,b);
+	    ptr=V_;
+        for(int i=0; i<=n-1; i++){
+            V.push_back(*(ptr++));
+        }    	
+	    //Xn = X-V;
+	    c=0;
+	    suma_tolerancia=0;
+	    for(int i=0; i<=n-1; i++){
+            Xn[c] = X0[c]-V[c];
+            suma_tolerancia += abs(Xn[c]-X0[c]);
+            c++;
+        }
+    }while(suma_tolerancia <= tolerancia);
+	
+}
+
+vd evalua(vector<map<string,pdd>> F_, vd X0, int n)
 {
 	
 }
 
-vector<double> evalua(vector< map<string, pdd> > F_[n], double X0[n])
+vector<vector<map<string,pdd>>> jacobiano(vector<map<string,pdd>> F_, int n)
 {
-	
+    
 }
+
+vdd evalua(vector<vector<map<string,pdd>>> JF_, vd X0, int n)
+{
+
+}
+
+
+
+
+
+
+
+//POR NO HACER HEADERS:::::::::::::::::::::
+//-----------------------------------------
+
+double **escalona(double AE[filas][columnas+1])
+{
+	int f = filas, c= columnas+1;
+	double m[f][c];
+	for(int i=0; i != f; i++){
+		for(int j=0; j != c; j++){
+			m[i][j] = 0;		
+		}	
+	}
+	for(int j=0; j <= c-2; j++){
+		for(int i=j+1; i <= f-1; i++){
+			m[i][j] = AE[i][j]/AE[j][j];
+			for(int k=0; k<= c-1; k++){
+				AE[i][k] = AE[i][k] - m[i][j]*AE[j][k];
+			}
+		}	
+	}
+	
+	double **E = new double*[filas];
+    for(int i = 0; i < filas; i++)
+        E[i] = new double[columnas+1];
+	
+	for(int i=0; i != f; i++){
+		for(int j=0; j != c; j++){
+			E[i][j] = AE[i][j];		
+		}	
+	}
+	return E;
+}
+
+double *sust_regresiva(double A[filas][columnas], double b[filas])
+{
+	int f = filas;
+	double *X = new double[f];
+	for(int i=0; i != f; i++){
+		X[i] = 0;
+	}
+	for(int i = f-1; i != -1; i--){
+		X[i] = b[i];
+		for(int j = i+1; j != f; j++){
+			X[i] = X[i]-A[i][j]*X[j];
+		}
+		X[i] = X[i]/A[i][i];
+	}
+	return X;
+}
+
+double *met_gauss(double A[filas][columnas], double b[filas])
+{
+	const int f = filas, c = columnas;
+	double B[f][c+1];
+	for(int i=0; i != f; i++){
+		for(int j=0; j != c; j++){
+			B[i][j] = A[i][j];		
+		}	
+	}
+	for(int i=0; i != f; i++){ //matriz extendida
+		B[i][c] = b[i];
+	}
+	double **B_; 
+	B_ =  escalona(B);
+	double X[f];
+	double Ba[f][c];
+	double Bb[f];
+	for(int i=0; i != f; i++){
+		for(int j=0; j != c; j++){
+			Ba[i][j] = B_[i][j];		
+		}	
+	}
+	for(int i=0; i != f; i++){ //matriz extendida
+		Bb[i] = B[i][columnas];
+	}
+	double *X_ = sust_regresiva(Ba,Bb);
+	return X_;
+}	
+void pivotea(double AE[filas][columnas+1], int c)
+{
+	// en la matriz extendida pivotea la columna c a partir de c, en c va el mayor elemento
+	int fila_mayor = c;
+	for(int f=c; f <= filas-1;f++){
+	    if(abs(AE[f][c]) >= abs(AE[fila_mayor][c]))
+	        fila_mayor = f;
+	}
+	double aux;
+	for(int col=0; col <= columnas;col++){
+	    aux = AE[c][col];
+	    AE[c][col] =  AE[fila_mayor][col]; 
+	    AE[fila_mayor][col] = aux;
+	}
+}
+double **escalona_piv(double AE[filas][columnas+1])
+{
+	int f = filas, c= columnas+1;
+	double m[f][c];
+	for(int i=0; i != f; i++){
+		for(int j=0; j != c; j++){
+			m[i][j] = 0;		
+		}	
+	}
+	for(int j=0; j != c-2; j++){
+		pivotea(AE,j);
+		for(int i=j+1; i <= f-1; i++){		    	
+			m[i][j] = AE[i][j]/AE[j][j];
+			for(int k=0; k<= c-1; k++){
+				AE[i][k] = AE[i][k] - m[i][j]*AE[j][k];
+			}
+		}	
+	}
+	
+	double **E = new double*[filas];
+    for(int i = 0; i < filas; i++)
+        E[i] = new double[columnas+1];
+        
+	for(int i=0; i != f; i++){
+		for(int j=0; j != c; j++){
+			E[i][j] = AE[i][j];		
+		}	
+	}
+	return E;
+}
+
+double *met_gauss_piv(double A[filas][columnas], double b[filas])
+{
+	const int f = filas, c = columnas;
+	double B[f][c+1];
+	for(int i=0; i != f; i++){
+		for(int j=0; j != c; j++){
+			B[i][j] = A[i][j];		
+		}	
+	}
+	for(int i=0; i != f; i++){ //matriz extendida
+		B[i][c] = b[i];
+	}
+	double **B_; 
+	B_ =  escalona_piv(B);
+	double X[f];
+	double Ba[f][c];
+	double Bb[f];
+	for(int i=0; i != f; i++){
+		for(int j=0; j != c; j++){
+			Ba[i][j] = B_[i][j];		
+		}	
+	}
+	for(int i=0; i != f; i++){ //matriz extendida
+		Bb[i] = B[i][columnas];
+	}
+	double *X_ = sust_regresiva(Ba,Bb);
+	return X_;
+}
+
+//-----------------------------------------
+
+
+
+
+
+
+
+
+
+
+
 
 
 

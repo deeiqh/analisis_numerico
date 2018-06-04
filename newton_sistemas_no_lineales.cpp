@@ -90,7 +90,7 @@ int main()
     
     //Newton_sistema
     //-------------------------------     
-    double tolerancia = 0.1;
+    double tolerancia = 0.001;
     vd resultado = newton_sistema(F,JF,X0,n,tolerancia);
     return 0;
     for(int i=0;i<=n-1;i++)

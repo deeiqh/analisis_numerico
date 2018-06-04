@@ -10,15 +10,15 @@
 using namespace std;
 using pdd = pair<double, double>;
 using vd = vector<double>;
-using vdd = vector< vector<double> >;
+using vvd = vector< vector<double> >;
 
-vd newton_sistema (vd F, vdd JF, vd X0, int n, double tolerancia);
+vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia);
 
 vd evalua(vector<map<string,pdd>> F_, vd X0, int n);
 
 vector<vector<map<string,pdd>>> jacobiano(vector<map<string,pdd>> F_, int n);
 
-vdd evalua(vector<vector<map<string,pdd>>> JF_, vd X0, int n);
+vvd evalua(vector<vector<map<string,pdd>>> JF_, vd X0, int n);
 
 //POR NO HACER HEADERS:::::::::::::::::::::
 //-----------------------------------------
@@ -86,7 +86,7 @@ int main()
     
     vector< vector< map<string, pdd> > >JF_;
     JF_ = jacobiano(F_, n);
-    vdd JF = evalua(JF_, X0, n);
+    vvd JF = evalua(JF_, X0, n);
     
     //Newton_sistema
     //-------------------------------     
@@ -99,7 +99,7 @@ int main()
 	return 0;
 }
 
-vd newton_sistema (vd F, vdd JF, vd X0, int n, double tolerancia)
+vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
 {
     double A[3][3];//Se pone 3 y no n por no usar header
     int f=0,c;
@@ -144,7 +144,17 @@ vd newton_sistema (vd F, vdd JF, vd X0, int n, double tolerancia)
 
 vd evalua(vector<map<string,pdd>> F_, vd X0, int n)
 {
-	
+	vd r;
+	double suma=0;
+	int c;
+	for(int i=0; i<=n-1; i++){
+	    c = 0;
+	    for(auto it=F_[i].begin(); it!=F_[i].end(); it++){
+	        suma += it->second.first * pow(X0[c++],it->second.second);
+	    }
+	    r.push_back(suma);
+	    suma=0;
+	}
 }
 
 map<string,pdd> derivada(map<string,pdd> mapa_fi,string letra);
@@ -171,9 +181,20 @@ map<string,pdd> derivada(map<string,pdd> mapa_fi,string letra)
 }
 
 
-vdd evalua(vector<vector<map<string,pdd>>> JF_, vd X0, int n)
+vvd evalua(vector<vector<map<string,pdd>>> JF_, vd X0, int n)
 {
-
+    vector<string> letras = {"x","y","z","v","w"};
+    vvd matriz_jacobiana_r;
+    for(int i=0; i<=n-1; i++){
+        vd fila;
+        for(int j=0; j<=n-1; j++){
+            fila.push_back(
+                        JF_[i][j][letras[j]].first*pow(X0[j],JF_[i][j][letras[j]].second)
+                        );
+        }
+        matriz_jacobiana_r.push_back(fila);
+    }
+    return matriz_jacobiana_r;
 }
 
 

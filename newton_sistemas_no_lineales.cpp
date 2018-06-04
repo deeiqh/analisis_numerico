@@ -58,7 +58,7 @@ int main()
 	f1["x"] = pdd(1,2);
 	f1["y"] = pdd(1,2);
 	f1["z"] = pdd(1,2);
-	f1["c"] = pdd(-2,1);
+	f1["zz"] = pdd(-2,1);
 	
 	F_.push_back(f1);	
 	
@@ -66,7 +66,7 @@ int main()
 	f2["x"] = pdd(1,1);
 	f2["y"] = pdd(1,1);
 	f2["z"] = pdd(1,1);
-	f2["c"] = pdd(-1,1);
+	f2["zz"] = pdd(-1,1);
 	
 	F_.push_back(f2);	
 	
@@ -74,7 +74,7 @@ int main()
 	f3["x"] = pdd(1,2);
 	f3["y"] = pdd(1,2);
 	f3["z"] = pdd(-1,1);
-	f3["c"] = pdd(0,1);
+	f3["zz"] = pdd(0,1);
 	
 	F_.push_back(f3);
 	

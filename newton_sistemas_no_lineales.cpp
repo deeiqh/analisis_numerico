@@ -10,9 +10,9 @@
 using namespace std;
 using pdd = pair<double, double>;
 using vd = vector<double>;
-using vvd = vector< vector<double> >;
+using vvd = vector<vector<double>>;
 
-vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia);
+vd newton_sistema (vector<map<string,pdd>> F_, vector<vector<map<string,pdd>>> JF_, vd X0, int n, double tolerancia);
 
 vd evalua(vector<map<string,pdd>> F_, vd X0, int n);
 
@@ -49,10 +49,10 @@ int main()
 	arctan(xy) + ln(x²+y³) = 2
 	*/
 
-    //F   
+    //F_
     //------------------------------- 
     
-	vector< map<string, pdd> > F_;
+	vector<map<string, pdd>> F_;
 	
 	map<string, pdd> f1;
 	f1["x"] = pdd(1,2);
@@ -79,20 +79,19 @@ int main()
 	F_.push_back(f3);
 	
 	vd X0 = {1,0,0};
-	vd F = evalua(F_, X0, n);
+	
 
-    //JF
+    //JF_
     //------------------------------- 
     
-    vector< vector< map<string, pdd> > >JF_;
+    vector<vector<map<string,pdd>>> JF_;
     JF_ = jacobiano(F_, n);
-    vvd JF = evalua(JF_, X0, n);
     
     //Newton_sistema
     //-------------------------------     
-    double tolerancia = 0.001;
-    vd resultado = newton_sistema(F,JF,X0,n,tolerancia);
-    return 0;
+    double tolerancia = 0.000001;
+    vd resultado = newton_sistema(F_,JF_,X0,n,tolerancia);
+
     for(int i=0;i<=n-1;i++)
 		cout << "X["<<i+1<<"] = "<<resultado[i] << '\n';
 	
@@ -103,7 +102,7 @@ int main()
 	return 0;
 }
 
-vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
+vd newton_sistema (vector<map<string,pdd>> F_, vector<vector<map<string,pdd>>> JF_, vd X0, int n, double tolerancia)
 {
     double A[3][3];//Se pone 3 y no n por no usar header
     int c;
@@ -112,7 +111,11 @@ vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
     double *ptr;
     vd V;
     double suma_tolerancia, x0_;
+    vd F;
+    vvd JF;
     do{
+    	F = evalua(F_, X0, n);
+        JF = evalua(JF_, X0, n);
         //Por no usar header
         //----
         int f=0;
@@ -139,13 +142,14 @@ vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
 	    suma_tolerancia=0;
 	    for(int i=0; i<=n-1; i++){
 	    	x0_ = X0[i];
-	    	cerr << "x0_="<<x0_<<"\n";
+	    	//cerr << "x0_="<<x0_<<"\n";
             X0[i] = X0[i]-V[i];
-            cerr << "X0["<<i<<"]="<<X0[i]<<"\n";
+            //cerr << "X0["<<i<<"]="<<X0[i]<<"\n";
             suma_tolerancia += abs(X0[i]-x0_);            
         }
-        cerr << "suma_tolerancia: " <<suma_tolerancia << "\n\n\n";
+        //cerr << "suma_tolerancia: " <<suma_tolerancia << "\n\n\n";      
     }while(suma_tolerancia > tolerancia);
+    
 	return X0;
 }
 

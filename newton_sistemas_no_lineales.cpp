@@ -131,6 +131,7 @@ vd newton_sistema (vd F, vvd JF, vd X0, int n, double tolerancia)
 	    //V
 	    V_ = met_gauss_piv(A,b);
 	    ptr=V_;
+	    V.clear();
         for(int i=0; i<=n-1; i++){
             V.push_back(*(ptr++));
         }    	

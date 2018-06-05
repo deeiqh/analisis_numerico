@@ -131,26 +131,25 @@ vd newton_sistema (vector<map<string,pdd>> F_, vector<vector<map<string,pdd>>> J
             b[c++]=*it;
         }    
         //----
-	    //V
-	    V_ = met_gauss_piv(A,b);
-	    ptr=V_;
-	    V.clear();
+	//V
+	V_ = met_gauss_piv(A,b);
+	ptr=V_;
+	V.clear();
         for(int i=0; i<=n-1; i++){
             V.push_back(*(ptr++));
         }    	
-	    //Xn = X-V;
-	    suma_tolerancia=0;
-	    for(int i=0; i<=n-1; i++){
-	    	x0_ = X0[i];
-	    	//cerr << "x0_="<<x0_<<"\n";
-            X0[i] = X0[i]-V[i];
-            //cerr << "X0["<<i<<"]="<<X0[i]<<"\n";
-            suma_tolerancia += abs(X0[i]-x0_);            
+	//Xn = X-V;
+	suma_tolerancia=0;
+	for(int i=0; i<=n-1; i++){
+		x0_ = X0[i];
+		//cerr << "x0_="<<x0_<<"\n";
+		X0[i] = X0[i]-V[i];
+		//cerr << "X0["<<i<<"]="<<X0[i]<<"\n";
+		suma_tolerancia += abs(X0[i]-x0_);            
         }
         //cerr << "suma_tolerancia: " <<suma_tolerancia << "\n\n\n";      
-    }while(suma_tolerancia > tolerancia);
-    
-	return X0;
+    }while(suma_tolerancia > tolerancia);	
+    return X0;
 }
 
 vd evalua(vector<map<string,pdd>> F_, vd X0, int n)

@@ -55,10 +55,10 @@ int main()
 	vector<map<string, pdd>> F_;
 	
 	map<string, pdd> f1;
-	f1["x"] = pdd(1,2);
+	f1["x"] = pdd(1,2); //pdd(coeficiente, expondente) ->x²
 	f1["y"] = pdd(1,2);
 	f1["z"] = pdd(1,2);
-	f1["zz"] = pdd(-2,1);
+	f1["zz"] = pdd(-2,1);//"zz" simboliza la constane: pdd(coeficiente, expondente) -> -2(1)¹
 	
 	F_.push_back(f1);	
 	
@@ -74,12 +74,11 @@ int main()
 	f3["x"] = pdd(1,2);
 	f3["y"] = pdd(1,2);
 	f3["z"] = pdd(-1,1);
-	f3["zz"] = pdd(0,1);
+	f3["zz"] = pdd(0,1);//pdd(coeficiente, expondente) -> 0(1)²
 	
 	F_.push_back(f3);
 	
-	vd X0 = {1,0,0};
-	
+	vd X0 = {1,0,0};	
 
     //JF_
     //------------------------------- 
@@ -131,25 +130,26 @@ vd newton_sistema (vector<map<string,pdd>> F_, vector<vector<map<string,pdd>>> J
             b[c++]=*it;
         }    
         //----
-	//V
-	V_ = met_gauss_piv(A,b);
-	ptr=V_;
-	V.clear();
+	    //V
+	    V_ = met_gauss_piv(A,b);
+	    ptr=V_;
+	    V.clear();
         for(int i=0; i<=n-1; i++){
             V.push_back(*(ptr++));
         }    	
-	//Xn = X-V;
-	suma_tolerancia=0;
-	for(int i=0; i<=n-1; i++){
-		x0_ = X0[i];
-		//cerr << "x0_="<<x0_<<"\n";
-		X0[i] = X0[i]-V[i];
-		//cerr << "X0["<<i<<"]="<<X0[i]<<"\n";
-		suma_tolerancia += abs(X0[i]-x0_);            
+	    //Xn = X-V;
+	    suma_tolerancia=0;
+	    for(int i=0; i<=n-1; i++){
+	    	x0_ = X0[i];
+	    	//cerr << "x0_="<<x0_<<"\n";
+            X0[i] = X0[i]-V[i];
+            //cerr << "X0["<<i<<"]="<<X0[i]<<"\n";
+            suma_tolerancia += abs(X0[i]-x0_);            
         }
         //cerr << "suma_tolerancia: " <<suma_tolerancia << "\n\n\n";      
-    }while(suma_tolerancia > tolerancia);	
-    return X0;
+    }while(suma_tolerancia > tolerancia);
+    
+	return X0;
 }
 
 vd evalua(vector<map<string,pdd>> F_, vd X0, int n)

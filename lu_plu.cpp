@@ -1,3 +1,9 @@
+//---------------------------------------
+//NO FUNCIONA PLU!!
+//	Falla la aplicación del paso final para dar el resultado a partir de la descomposición plu bien hecha. 
+//Sí funciona LU.
+//---------------------------------------
+
 #include <iostream>
 
 using namespace std;
